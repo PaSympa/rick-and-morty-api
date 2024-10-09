@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
+import org.mathieu.ui.composables.LocationCard
 import org.mathieu.ui.composables.PreviewContent
 
 private typealias UIState = CharacterDetailsState
@@ -155,6 +156,17 @@ private fun CharacterDetailsContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(text = state.name)
+
+                    state.locationPreview?.let{
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        LocationCard(
+                            location = it,
+                            onClick = {
+                            }
+                        )
+                    }
+
                 }
 
 

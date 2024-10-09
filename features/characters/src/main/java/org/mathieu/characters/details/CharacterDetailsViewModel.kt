@@ -2,14 +2,15 @@ package org.mathieu.characters.details
 
 import android.app.Application
 import org.koin.core.component.inject
+import org.mathieu.domain.models.location.LocationPreview
 import org.mathieu.domain.repositories.CharacterRepository
 import org.mathieu.ui.ViewModel
 
 
-class CharacterDetailsViewModel(application: Application) : org.mathieu.ui.ViewModel<CharacterDetailsState>(
+class CharacterDetailsViewModel(application: Application) : ViewModel<CharacterDetailsState>(
     CharacterDetailsState(), application) {
 
-    private val characterRepository: org.mathieu.domain.repositories.CharacterRepository by inject()
+    private val characterRepository: CharacterRepository by inject()
 
     fun init(characterId: Int) {
         fetchData(
@@ -17,7 +18,7 @@ class CharacterDetailsViewModel(application: Application) : org.mathieu.ui.ViewM
         ) {
 
             onSuccess {
-                updateState { copy(avatarUrl = it.avatarUrl, name = it.name, error = null) }
+                updateState { copy(avatarUrl = it.avatarUrl, name = it.name, locationPreview =  it.locationPreview, error = null) }
             }
 
             onFailure {
@@ -36,5 +37,6 @@ data class CharacterDetailsState(
     val isLoading: Boolean = true,
     val avatarUrl: String = "",
     val name: String = "",
+    val locationPreview: LocationPreview? = null,
     val error: String? = null
 )

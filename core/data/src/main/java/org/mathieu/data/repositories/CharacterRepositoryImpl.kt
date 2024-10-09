@@ -9,12 +9,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.mathieu.data.local.CharacterLocal
 import org.mathieu.data.local.objects.CharacterObject
+import org.mathieu.data.local.objects.LocationPreviewObject
 import org.mathieu.data.local.objects.toModel
 import org.mathieu.data.local.objects.toRealmObject
 import org.mathieu.data.remote.CharacterApi
 import org.mathieu.data.remote.responses.CharacterResponse
-import org.mathieu.domain.repositories.CharacterRepository
 import org.mathieu.domain.models.character.Character
+import org.mathieu.domain.repositories.CharacterRepository
 
 private const val CHARACTER_PREFS = "character_repository_preferences"
 private val nextPage = intPreferencesKey("next_characters_page_to_load")
@@ -26,7 +27,7 @@ private val Context.dataStore by preferencesDataStore(
 internal class CharacterRepositoryImpl(
     private val context: Context,
     private val characterApi: CharacterApi,
-    private val characterLocal: CharacterLocal
+    private val characterLocal: CharacterLocal,
 ) : CharacterRepository {
 
     override suspend fun getCharacters(): Flow<List<Character>> =
@@ -77,6 +78,8 @@ internal class CharacterRepositoryImpl(
      * The function follows these steps:
      * 1. Tries to fetch the character from the local storage.
      * 2. If not found locally, it fetches the character from the API.
+     *  2.1 If the location ID is not -1, it fetches the location preview from the API
+     *  2.2 It saves the location preview to the character object.
      * 3. Upon successful API retrieval, it saves the character to local storage.
      * 4. If the character is still not found, it throws an exception.
      *
@@ -88,12 +91,38 @@ internal class CharacterRepositoryImpl(
         characterLocal.getCharacter(id)?.toModel()
             ?: characterApi.getCharacter(id = id)?.let { response ->
                 val obj = response.toRealmObject()
+
+                // Extract the location ID from the character response.
+                val locationId = obj.locationId
+
+                // Fetch the location preview
+                obj.locationPreview = fetchLocationPreview(locationId)
+
                 characterLocal.insert(obj)
                 obj.toModel()
             }
             ?: throw Exception("Character not found.")
 
 
+    /**
+     * Retrieves the location preview with the specified ID.
+     *
+     * The function follows these steps:
+     * 1. Checks if the location ID is -1. If so, it returns null. (-1 indicates that the location is unknown.)
+     * 2. Fetches the location preview from the API.
+     *
+     * @param id The unique identifier of the location to retrieve.
+     * @return The [LocationPreviewObject] representing the location details or null if the location ID is -1.
+     */
+    private suspend fun fetchLocationPreview(id: Int): LocationPreviewObject? {
+        var response: LocationPreviewObject? = null
+
+        if (id != -1) {
+            response = characterApi.getLocationPreview(id)?.toRealmObject()
+        }
+
+        return response
+    }
 }
 
 

@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
  * @property image A URL pointing to an image of the character. Typically 300x300px, suitable for use as an avatar.
  * @property episode A list of episodes in which the character has appeared.
  * @property url The unique URL endpoint specifically for this character.
+ * @property locationsPreviews A list of [LocationPreviewResponse] representing locations where the character has appeared.
  * @property created The timestamp indicating when the character was added to the database.
  */
 @Serializable
@@ -31,7 +32,8 @@ internal data class CharacterResponse(
     val image: String,
     val episode: List<String>,
     val url: String,
-    val created: String,
+    val locationsPreviews : List<LocationPreviewResponse> = emptyList(),
+    val created: String
 )
 
 @Serializable

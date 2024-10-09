@@ -1,6 +1,10 @@
 package org.mathieu.data.remote.responses
 
 import kotlinx.serialization.Serializable
+import org.mathieu.data.repositories.tryOrNull
+import org.mathieu.domain.models.character.Character
+import org.mathieu.domain.models.character.CharacterGender
+import org.mathieu.domain.models.character.CharacterStatus
 
 /**
  * Represents detailed information about a character, typically received from an API response.
@@ -39,3 +43,29 @@ internal data class CharacterResponse(
 @Serializable
 internal data class CharacterLocationResponse(val name: String, val url: String)
 
+/**
+ * Converts the [CharacterResponse] object to a [Character] model object.
+ *
+ * @return The [Character] model object representing the character.
+ */
+internal fun CharacterResponse.toModel() : Character = Character(
+    id = id,
+    name = name,
+    status = when (status) {
+        "Alive" -> CharacterStatus.Alive
+        "Dead" -> CharacterStatus.Dead
+        else -> CharacterStatus.Unknown
+    },
+    species = species,
+    type = type,
+    gender = when (gender) {
+        "Female" -> CharacterGender.Female
+        "Male" -> CharacterGender.Male
+        "Genderless" -> CharacterGender.Genderless
+        else -> CharacterGender.Unknown
+    },
+    origin = Pair(origin.name, tryOrNull { origin.url.split("/").last().toInt() } ?: -1),
+    location = Pair(location.name, tryOrNull { location.url.split("/").last().toInt() } ?: -1),
+    locationPreview = locationPreview?.toModel(),
+    avatarUrl = image
+)

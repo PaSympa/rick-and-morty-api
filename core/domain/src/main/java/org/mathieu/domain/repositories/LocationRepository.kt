@@ -1,8 +1,9 @@
 package org.mathieu.domain.repositories
 
-import org.mathieu.domain.models.location.LocationPreview
+import org.mathieu.domain.models.location.Location
 
-interface LocationPreviewRepository {
+
+interface LocationRepository {
 
     /**
      * Fetches the details of a specific location based on the provided ID.
@@ -10,5 +11,6 @@ interface LocationPreviewRepository {
      * @param id The unique identifier of the location to be fetched.
      * @return Details of the specified location.
      */
-    suspend fun getLocationPreview(id: Int): LocationPreview
+    suspend fun getLocation(id: Int): Location
+
 }

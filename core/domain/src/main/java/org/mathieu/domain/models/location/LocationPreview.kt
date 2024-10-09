@@ -1,7 +1,7 @@
 package org.mathieu.domain.models.location
 
 /**
- * Represents a location where characters appear in the show.
+ * Represents a location where characters can be found
  *
  * @property id The unique identifier for the location.
  * @property name The name of the location.

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * @property id The unique identifier for the locationPreview.
  * @property name The name of the locationPreview.
  * @property type The type or category of the locationPreview.
- * @property dimension The specific dimension in which the locationPreview takes place.
+ * @property dimension The specific dimension in which this locationPreview exists.
  */
 @Serializable
 internal data class LocationPreviewResponse(

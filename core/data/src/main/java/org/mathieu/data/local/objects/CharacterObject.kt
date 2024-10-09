@@ -1,7 +1,5 @@
 package org.mathieu.data.local.objects
 
-import io.realm.kotlin.ext.realmListOf
-import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
 import org.mathieu.data.remote.responses.CharacterResponse
@@ -24,8 +22,8 @@ import org.mathieu.domain.models.character.*
  * @property locationName The current location name.
  * @property locationId The current location id.
  * @property image URL pointing to the character's avatar image.
+ * @property locationPreview an object [LocationPreviewObject] representing the location where the character is currently located.
  * @property created Timestamp indicating when the character entity was created in the database.
- * @property locationsPreviews A list of [LocationPreviewObject] representing locations where the character has appeared.
  */
 internal class CharacterObject: RealmObject {
     @PrimaryKey
@@ -40,7 +38,7 @@ internal class CharacterObject: RealmObject {
     var locationName: String = ""
     var locationId: Int = -1
     var image: String = ""
-    var locationsPreviews: RealmList<LocationPreviewObject> = realmListOf()
+    var locationPreview: LocationPreviewObject? = null
     var created: String = ""
 }
 
@@ -57,7 +55,7 @@ internal fun CharacterResponse.toRealmObject() = CharacterObject().also { obj ->
     obj.locationName = location.name
     obj.locationId = tryOrNull { location.url.split("/").last().toInt() } ?: -1
     obj.image = image
-    obj.locationsPreviews.addAll(locationsPreviews.map { it.toRealmObject() })
+    obj.locationPreview = locationPreview?.toRealmObject()
     obj.created = created
 }
 
@@ -70,6 +68,6 @@ internal fun CharacterObject.toModel() = Character(
     gender = tryOrNull { CharacterGender.valueOf(gender) } ?: CharacterGender.Unknown,
     origin = originName to originId,
     location = locationName to locationId,
-    locationsPreviews = locationsPreviews.map { it.toModel() },
+    locationPreview = locationPreview?.toModel(),
     avatarUrl = image
 )

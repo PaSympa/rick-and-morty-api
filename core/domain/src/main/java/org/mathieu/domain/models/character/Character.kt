@@ -13,7 +13,7 @@ import org.mathieu.domain.models.location.LocationPreview
  * @property gender The gender of the character.
  * @property origin The origin location of the character, represented as a name and an id of location.
  * @property location The current or last known location of the character, represented as a name and an id of location.
- * @property locationsPreviews A list of [LocationPreview] representing locations where the character has appeared.
+ * @property locationPreview A preview of the location where the character is currently located.
  * @property avatarUrl A URL pointing to an avatar or image of the character.
  */
 data class Character(
@@ -25,7 +25,7 @@ data class Character(
     val gender: CharacterGender,
     val origin: Pair<String, Int>,
     val location: Pair<String, Int>,
-    val locationsPreviews: List<LocationPreview>,
+    val locationPreview: LocationPreview?,
     val avatarUrl: String
 )
 

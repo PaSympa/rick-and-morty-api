@@ -13,7 +13,6 @@ import org.mathieu.data.local.objects.LocationPreviewObject
 import org.mathieu.data.local.objects.toModel
 import org.mathieu.data.local.objects.toRealmObject
 import org.mathieu.data.remote.CharacterApi
-import org.mathieu.data.remote.responses.CharacterResponse
 import org.mathieu.domain.models.character.Character
 import org.mathieu.domain.repositories.CharacterRepository
 
@@ -45,6 +44,8 @@ internal class CharacterRepositoryImpl(
      * 2. If there's a valid next page (i.e., page is not -1), it fetches characters from the API for that page.
      * 3. Extracts the next page number from the API response and updates the data store with it.
      * 4. Transforms the fetched character data into their corresponding realm objects.
+     *      4.1. For each character, if the `locationId` is valid (not -1), it retrieves the location preview from the API.
+     *      4.2. Attaches the location preview to the corresponding character object.
      * 5. Saves the transformed realm objects to the local database.
      *
      * Note: If the `next` attribute from the API response is null or missing, the page number is set to -1, indicating there's no more data to fetch.
@@ -61,8 +62,19 @@ internal class CharacterRepositoryImpl(
 
             context.dataStore.edit { prefs -> prefs[nextPage] = nextPageToLoad }
 
-            val objects = response.results.map(transform = CharacterResponse::toRealmObject)
+            val objects = response.results.map { characterResponse ->
 
+                // Get the location ID from the character response
+                val obj = characterResponse.toRealmObject()
+                val locationId = obj.locationId
+
+                // Fetch the location preview
+                obj.apply {
+                    locationPreview = fetchLocationPreview(locationId)
+                }
+            }
+
+            // Save the characters to the local database
             characterLocal.saveCharacters(objects)
         }
 
@@ -78,8 +90,8 @@ internal class CharacterRepositoryImpl(
      * The function follows these steps:
      * 1. Tries to fetch the character from the local storage.
      * 2. If not found locally, it fetches the character from the API.
-     *  2.1 If the location ID is not -1, it fetches the location preview from the API
-     *  2.2 It saves the location preview to the character object.
+     *      2.1 If the location ID is not -1, it fetches the location preview from the API
+     *      2.2 It saves the location preview to the character object.
      * 3. Upon successful API retrieval, it saves the character to local storage.
      * 4. If the character is still not found, it throws an exception.
      *

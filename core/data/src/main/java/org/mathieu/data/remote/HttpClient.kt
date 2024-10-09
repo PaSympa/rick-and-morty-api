@@ -13,7 +13,8 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 
 fun createHttpClient(
     baseUrl: String,
@@ -23,7 +24,9 @@ fun createHttpClient(
 
 
     install(ContentNegotiation) {
-        json()
+        json(Json { ignoreUnknownKeys = true })
+
+
     }
 
     install(HttpTimeout) {
@@ -50,7 +53,7 @@ inline fun <reified T> HttpRequestBuilder.setBodyJson(body: T) {
 
 fun HttpResponse.accept(vararg codes: HttpStatusCode) = when (status) {
     in codes -> this
-    else -> throw org.mathieu.data.remote.HttpException.NotAccepted
+    else -> throw HttpException.NotAccepted
 }
 
 sealed class HttpException(override val message: String): Exception() {

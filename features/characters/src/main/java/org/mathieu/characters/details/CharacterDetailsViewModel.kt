@@ -2,13 +2,14 @@ package org.mathieu.characters.details
 
 import android.app.Application
 import org.koin.core.component.inject
-import org.mathieu.domain.models.location.LocationPreview
 import org.mathieu.domain.repositories.CharacterRepository
+import org.mathieu.characters.details.CharacterDetailsContracts.State
+import org.mathieu.characters.details.CharacterDetailsContracts.Action
+import org.mathieu.ui.Destination
 import org.mathieu.ui.ViewModel
 
 
-class CharacterDetailsViewModel(application: Application) : ViewModel<CharacterDetailsState>(
-    CharacterDetailsState(), application) {
+class CharacterDetailsViewModel(application: Application) : ViewModel<State>(State(), application) {
 
     private val characterRepository: CharacterRepository by inject()
 
@@ -29,14 +30,21 @@ class CharacterDetailsViewModel(application: Application) : ViewModel<CharacterD
         }
     }
 
-
+    /**
+     * Handle user actions to update the UI state.
+     * Each action represents a user interaction like entering name or description.
+     *
+     * @param action The action to handle to update the UI state.
+     *
+     * @see Action
+     */
+    fun handleAction(action: Action) {
+        when (action){
+            is Action.SelectedLocation -> {
+                sendEvent(
+                    Destination.LocationDetails(locationId = action.locationId.toString())
+                )
+            }
+        }
+    }
 }
-
-
-data class CharacterDetailsState(
-    val isLoading: Boolean = true,
-    val avatarUrl: String = "",
-    val name: String = "",
-    val locationPreview: LocationPreview? = null,
-    val error: String? = null
-)

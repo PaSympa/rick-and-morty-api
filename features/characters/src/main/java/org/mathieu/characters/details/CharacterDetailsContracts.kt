@@ -1,20 +1,18 @@
-package com.mathieu.location.details
+package org.mathieu.characters.details
 
 import androidx.compose.runtime.Immutable
-import org.mathieu.domain.models.location.Location
+import org.mathieu.domain.models.location.LocationPreview
 
-/**
- * Contracts defining the state, actions and events of the location details page.
- * These contracts are used by the ViewModel to manage the UI state and user interactions.
- */
-interface LocationDetailsContracts {
+interface CharacterDetailsContracts {
 
     /**
-     * Represents the state of the location details UI.
+     * Represents the state of the character details UI.
      * This state is used to display data in the UI and react to user actions.
      *
      * @param isLoading True if the data is loading, false otherwise.
-     * @param location The location to display.
+     * @param avatarUrl The URL of the character's avatar image.
+     * @param name The name of the character.
+     * @param locationPreview A preview of the character's location.
      * @param error An error message to display.
      * @see Action
      * @see Event
@@ -22,7 +20,9 @@ interface LocationDetailsContracts {
     @Immutable
     data class State(
         val isLoading: Boolean = true,
-        val location: Location? = null,
+        val avatarUrl: String = "",
+        val name: String = "",
+        val locationPreview: LocationPreview? = null,
         val error: String? = null
     )
 
@@ -33,6 +33,7 @@ interface LocationDetailsContracts {
      * @see Event
      */
     sealed interface Action {
+        data class SelectedLocation(val locationId: Int) : Action
     }
 
     /**
@@ -41,7 +42,4 @@ interface LocationDetailsContracts {
      * @see Action
      */
     sealed interface Event
-
 }
-
-

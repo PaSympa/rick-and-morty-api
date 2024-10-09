@@ -1,25 +1,49 @@
 package com.mathieu.location.details
 
 import android.app.Application
-import com.mathieu.location.details.LocationDetailsContracts.Action
 import com.mathieu.location.details.LocationDetailsContracts.State
 import org.koin.core.component.inject
 import org.mathieu.domain.repositories.LocationRepository
 import org.mathieu.ui.ViewModel
 
+/**
+ * ViewModel for the location details screen
+ *
+ * @param application the application context
+ *
+ * @see ViewModel
+ * @see State
+ */
 class LocationDetailViewModel (application: Application) : ViewModel<State>(State(), application)
 {
+    // Inject the location repository
     private val locationRepository: LocationRepository by inject()
 
     /**
-     * Gère les actions de l'utilisateur pour mettre à jour l'état de l'UI.
-     * Chaque action représente une interaction utilisateur comme la saisie du nom ou de la description.
+     * Initialize the ViewModel with the location id
      *
-     * @param action L'action à traiter pour mettre à jour l'état de l'UI.
-     *
-     * @see Action
+     * @param locationId the id of the location to display
      */
-    fun handleAction(action: Action) {
+    fun init (locationId: Int)
+    {
+        fetchData(
+            source = { locationRepository.getLocation(locationId) }
+        ) {
+            onSuccess { location ->
+                updateState {
+                    copy(
+                        isLoading = false,
+                        location = location,
+                        error = null
+                    )
+                }
+            }
 
+            onFailure {
+                updateState { copy(error = it.toString()) }
+            }
+
+            updateState { copy(isLoading = false) }
+        }
     }
 }

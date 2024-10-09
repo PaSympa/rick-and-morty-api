@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,10 +42,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import org.mathieu.ui.Destination
 import org.mathieu.ui.composables.LocationCard
 import org.mathieu.ui.composables.PreviewContent
+import org.mathieu.ui.navigate
 
-private typealias UIState = CharacterDetailsState
+private typealias UIState = CharacterDetailsContracts.State
 
 @Composable
 fun CharacterDetailsScreen(
@@ -56,9 +61,18 @@ fun CharacterDetailsScreen(
 
     viewModel.init(characterId = id)
 
+    LaunchedEffect(viewModel) {
+        viewModel.events
+            .onEach { event ->
+                if (event is Destination.LocationDetails)
+                    navController.navigate(destination = event)
+            }.collect()
+    }
+
     CharacterDetailsContent(
         state = state,
-        onClickBack = navController::popBackStack
+        onClickBack = navController::popBackStack,
+        onAction = viewModel::handleAction
     )
 
 }
@@ -68,7 +82,8 @@ fun CharacterDetailsScreen(
 @Composable
 private fun CharacterDetailsContent(
     state: UIState = UIState(),
-    onClickBack: () -> Unit = { }
+    onClickBack: () -> Unit = { },
+    onAction: (CharacterDetailsContracts.Action) -> Unit = { },
 ) = Scaffold(topBar = {
 
     Row(
@@ -163,6 +178,9 @@ private fun CharacterDetailsContent(
                         LocationCard(
                             location = it,
                             onClick = {
+                                onAction(
+                                    CharacterDetailsContracts.Action.SelectedLocation(it.id)
+                                )
                             }
                         )
                     }

@@ -34,6 +34,7 @@ class CharactersViewModel(application: Application) : ViewModel<CharactersState>
             updateState { copy(isLoading = false) }
         }
 
+        println()
     }
 
     fun handleAction(action: CharactersAction) {
